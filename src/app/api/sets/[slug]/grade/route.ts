@@ -9,26 +9,61 @@ type GradeBody = {
   answers: Record<string, number>;
 };
 
+type SingleGradeBody = {
+  questionId: string;
+  choiceIndex: number;
+};
+
+function isSingleGradeBody(
+  body: unknown,
+): body is SingleGradeBody {
+  if (!body || typeof body !== "object") return false;
+  const b = body as Record<string, unknown>;
+  return (
+    typeof b.questionId === "string" &&
+    typeof b.choiceIndex === "number"
+  );
+}
+
 export async function POST(req: Request, context: RouteContext) {
   const { slug } = await context.params;
   if (!slug) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  let body: GradeBody;
+  let body: unknown;
   try {
-    body = (await req.json()) as GradeBody;
+    body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-  }
-
-  if (!body.answers || typeof body.answers !== "object") {
-    return NextResponse.json({ error: "answers required" }, { status: 400 });
   }
 
   const stored = await getStoredProblemSet(slug);
   if (!stored) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  if (isSingleGradeBody(body)) {
+    const q = stored.questions.find((x) => x.id === body.questionId);
+    if (!q) {
+      return NextResponse.json({ error: "Unknown question" }, { status: 404 });
+    }
+    const picked = body.choiceIndex;
+    const valid =
+      Number.isInteger(picked) &&
+      picked >= 0 &&
+      picked < q.choices.length;
+    const ok = valid && picked === q.correctIndex;
+    return NextResponse.json({
+      correct: ok,
+      correctIndex: q.correctIndex,
+      explanation: q.explanation,
+    });
+  }
+
+  const batch = body as GradeBody;
+  if (!batch.answers || typeof batch.answers !== "object") {
+    return NextResponse.json({ error: "answers required" }, { status: 400 });
   }
 
   const results: Record<
@@ -40,7 +75,7 @@ export async function POST(req: Request, context: RouteContext) {
 
   for (const q of stored.questions) {
     total += 1;
-    const picked = body.answers[q.id];
+    const picked = batch.answers[q.id];
     const ok =
       typeof picked === "number" &&
       Number.isInteger(picked) &&
