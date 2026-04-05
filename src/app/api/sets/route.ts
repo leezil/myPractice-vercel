@@ -4,7 +4,7 @@ import {
   getProblemDataSource,
   listProblemSetSummaries,
 } from "@/lib/problems-store";
-import { normalizeSubjectLabel } from "@/lib/subject-match";
+import { subjectLabelsEquivalent } from "@/lib/subject-match";
 import { getSubjectBySlug } from "@/lib/subjects";
 
 export const runtime = "nodejs";
@@ -37,9 +37,8 @@ export async function GET(req: Request) {
     if (!course) {
       return NextResponse.json({ error: "알 수 없는 과목입니다." }, { status: 400 });
     }
-    const want = normalizeSubjectLabel(course.title);
-    sets = allSets.filter(
-      (s) => normalizeSubjectLabel(s.subject) === want,
+    sets = allSets.filter((s) =>
+      subjectLabelsEquivalent(s.subject, course.title),
     );
   }
 

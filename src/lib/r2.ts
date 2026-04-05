@@ -2,6 +2,12 @@ import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 const INDEX_KEY = "index.json";
 
+/** 버킷 루트 또는 저장소와 동일한 `content/r2-seed/` 접두 경로 */
+export const INDEX_KEY_CANDIDATES = [
+  "index.json",
+  "content/r2-seed/index.json",
+] as const;
+
 function requireEnv(name: string): string {
   const v = process.env[name];
   if (!v) throw new Error(`Missing env: ${name}`);
@@ -37,6 +43,22 @@ export { INDEX_KEY };
 
 export function setObjectKey(slug: string): string {
   return `sets/${slug}.json`;
+}
+
+export function setObjectKeyCandidates(slug: string): string[] {
+  const safe = slug.replace(/[/\\]/g, "");
+  if (!safe) return [];
+  return [`sets/${safe}.json`, `content/r2-seed/sets/${safe}.json`];
+}
+
+export async function getObjectTextFirst(
+  keys: readonly string[],
+): Promise<string | null> {
+  for (const key of keys) {
+    const text = await getObjectText(key);
+    if (text) return text;
+  }
+  return null;
 }
 
 async function bodyToString(body: unknown): Promise<string> {

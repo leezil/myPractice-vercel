@@ -25,7 +25,7 @@ type ApiList = {
 };
 
 type SetListProps = {
-  /** 과목 페이지에서만 넘깁니다. `index.json`의 `subject`가 이 과목 제목과 같아야 합니다. */
+  /** 과목 페이지에서만 넘깁니다. `index.json`의 `subject`가 이 과목 제목과 맞아야 합니다. */
   subjectSlug?: string;
   subjectTitle?: string;
 };
@@ -112,7 +112,7 @@ export function SetList({ subjectSlug, subjectTitle }: SetListProps) {
           <CardTitle>등록된 문제 세트가 없습니다</CardTitle>
           <CardDescription>
             {subjectTitle
-              ? `「${subjectTitle}」 과목으로 등록된 세트가 없습니다. index.json의 subject 필드를 과목 이름과 똑같이 맞추세요.`
+              ? `「${subjectTitle}」 과목으로 등록된 세트가 없습니다. R2에 index.json·sets/가 버킷 루트 또는 content/r2-seed/ 아래에 있는지, index의 subject·slug가 맞는지 확인하세요.`
               : data.r2Configured
                 ? "R2 버킷에 index.json과 sets/*.json을 업로드한 뒤 다시 확인하세요."
                 : "content/r2-seed/index.json을 추가하거나 R2를 연결하세요."}

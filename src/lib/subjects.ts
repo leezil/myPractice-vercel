@@ -1,4 +1,4 @@
-/** 문제 JSON의 `subject` 필드와 정확히 같아야 해당 과목에 표시됩니다. */
+/** 문제 JSON의 `subject`는 과목 제목과 같아야 하며, 공백(전각 포함) 차이는 무시됩니다. */
 export type CourseSubject = {
   slug: string;
   title: string;

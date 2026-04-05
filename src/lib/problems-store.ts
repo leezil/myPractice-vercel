@@ -1,6 +1,11 @@
 import { readLocalSeedIndex, readLocalSeedSet } from "@/lib/local-seed";
 import { parseProblemIndex } from "@/lib/problem-index";
-import { INDEX_KEY, getObjectText, isR2Configured, setObjectKey } from "@/lib/r2";
+import {
+  INDEX_KEY_CANDIDATES,
+  getObjectTextFirst,
+  isR2Configured,
+  setObjectKeyCandidates,
+} from "@/lib/r2";
 import type {
   ProblemSetSummary,
   PublicProblemSet,
@@ -44,7 +49,7 @@ function toPublicQuestion(q: StoredQuestion) {
 
 export async function listProblemSetSummaries(): Promise<ProblemSetSummary[]> {
   if (isR2Configured()) {
-    const raw = await getObjectText(INDEX_KEY);
+    const raw = await getObjectTextFirst(INDEX_KEY_CANDIDATES);
     if (!raw) return [];
     return parseProblemIndex(raw);
   }
@@ -55,7 +60,9 @@ export async function getStoredProblemSet(
   slug: string,
 ): Promise<StoredProblemSet | null> {
   if (isR2Configured()) {
-    const raw = await getObjectText(setObjectKey(slug));
+    const keys = setObjectKeyCandidates(slug);
+    const raw =
+      keys.length > 0 ? await getObjectTextFirst(keys) : null;
     if (!raw) return null;
     return parseSet(raw);
   }
