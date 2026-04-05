@@ -49,6 +49,7 @@ function parseSet(raw: string): StoredProblemSet | null {
 function toPublicQuestion(q: StoredQuestion) {
   return {
     id: q.id,
+    ...(q.passage !== undefined && q.passage !== "" ? { passage: q.passage } : {}),
     stem: q.stem,
     choices: q.choices,
   };
@@ -80,6 +81,9 @@ export function toPublicSet(stored: StoredProblemSet): PublicProblemSet {
     title: stored.title,
     subject: stored.subject,
     description: stored.description,
+    ...(stored.passage !== undefined && stored.passage !== ""
+      ? { passage: stored.passage }
+      : {}),
     questions: stored.questions.map(toPublicQuestion),
   };
 }

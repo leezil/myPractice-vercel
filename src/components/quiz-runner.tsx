@@ -93,11 +93,29 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
 
       <ScrollArea className="h-[min(70vh,640px)] pr-4">
         <div className="space-y-6 pb-4">
+          {initialSet.passage ? (
+            <Card className="border-dashed bg-muted/30">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">공통 지문</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="whitespace-pre-wrap text-sm leading-relaxed">{initialSet.passage}</p>
+              </CardContent>
+            </Card>
+          ) : null}
           {initialSet.questions.map((q, idx) => {
             const r = graded?.results[q.id];
             return (
               <Card key={q.id} className={r ? (r.correct ? "border-green-500/40" : "border-destructive/40") : ""}>
                 <CardHeader>
+                  {q.passage ? (
+                    <div className="mb-4 rounded-lg border bg-muted/40 p-3">
+                      <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        지문
+                      </p>
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed">{q.passage}</p>
+                    </div>
+                  ) : null}
                   <div className="flex items-start justify-between gap-2">
                     <CardTitle className="text-base font-medium">
                       {idx + 1}. {q.stem}

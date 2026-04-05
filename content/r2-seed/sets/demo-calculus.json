@@ -6,7 +6,8 @@
   "questions": [
     {
       "id": "q1",
-      "stem": "함수 f(x) = x^2 에 대해 f'(2)의 값은?",
+      "passage": "함수 f(x)는 실수 전체에서 정의되며, 모든 x에 대해 f(x) = x^2 이다.",
+      "stem": "f'(2)의 값은?",
       "choices": ["2", "4", "8", "0"],
       "correctIndex": 1,
       "explanation": "f'(x) = 2x 이므로 f'(2) = 4 입니다."

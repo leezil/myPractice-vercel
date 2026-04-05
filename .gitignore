@@ -38,4 +38,11 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
+
+# 로컬 전용: PDF 추출·문항 생성 (앱 빌드·배포에 불필요, 로컬에서만 실행)
+/scripts/build_history_questions.py
+/scripts/extract_leadership_pdfs.py
+
+# 로컬 생성 문제은행·PDF 추출 텍스트
+/local-question-banks/
+/local-question-source/

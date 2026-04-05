@@ -10,6 +10,8 @@ export type ProblemSetSummary = {
 /** R2 `sets/{slug}.json` 원본 (서버에서만 완전한 형태로 사용) */
 export type StoredQuestion = {
   id: string;
+  /** 이 문항만의 지문(상황·본문). 없으면 생략 */
+  passage?: string;
   stem: string;
   choices: string[];
   /** 0-based index */
@@ -22,12 +24,15 @@ export type StoredProblemSet = {
   title: string;
   subject: string;
   description?: string;
+  /** 세트 전체 공통 지문(여러 문항이 같은 글을 보고 푸는 경우). 없으면 생략 */
+  passage?: string;
   questions: StoredQuestion[];
 };
 
 /** 클라이언트에 내려주는 문제 (정답 인덱스 제외) */
 export type PublicQuestion = {
   id: string;
+  passage?: string;
   stem: string;
   choices: string[];
 };
@@ -37,5 +42,6 @@ export type PublicProblemSet = {
   title: string;
   subject: string;
   description?: string;
+  passage?: string;
   questions: PublicQuestion[];
 };
