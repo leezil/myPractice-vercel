@@ -15,6 +15,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import type { PublicProblemSet } from "@/lib/types/problem";
 
 type SingleGradeResponse = {
@@ -235,10 +236,30 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
           >
             {q.choices.map((c, i) => {
               const id = `${q.id}-${i}`;
+              const o = outcome;
+              const isAnswerRow = o != null && i === o.correctIndex;
+              const isWrongPick =
+                o != null && i === o.picked && i !== o.correctIndex;
               return (
-                <div key={id} className="flex items-center gap-3 rounded-lg border p-3">
+                <div
+                  key={id}
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg border p-3 transition-colors",
+                    isAnswerRow &&
+                      "border-emerald-600/55 bg-emerald-500/[0.14] dark:border-emerald-500/45 dark:bg-emerald-500/10",
+                    isWrongPick &&
+                      "border-red-600/55 bg-red-500/[0.12] dark:border-red-500/45 dark:bg-red-500/10",
+                  )}
+                >
                   <RadioGroupItem value={String(i)} id={id} />
-                  <Label htmlFor={id} className="flex-1 cursor-pointer text-sm font-normal leading-snug">
+                  <Label
+                    htmlFor={id}
+                    className={cn(
+                      "flex-1 cursor-pointer text-sm font-normal leading-snug",
+                      isAnswerRow && "text-emerald-950 dark:text-emerald-100",
+                      isWrongPick && "text-red-950 dark:text-red-100",
+                    )}
+                  >
                     {c}
                   </Label>
                 </div>
