@@ -1,4 +1,5 @@
 import { readLocalSeedIndex, readLocalSeedSet } from "@/lib/local-seed";
+import { parseProblemIndex } from "@/lib/problem-index";
 import { INDEX_KEY, getObjectText, isR2Configured, setObjectKey } from "@/lib/r2";
 import type {
   ProblemSetSummary,
@@ -12,20 +13,6 @@ export type ProblemDataSource = "r2" | "local";
 
 export function getProblemDataSource(): ProblemDataSource {
   return isR2Configured() ? "r2" : "local";
-}
-
-function parseIndex(raw: string): ProblemSetSummary[] {
-  const data = JSON.parse(raw) as unknown;
-  if (!Array.isArray(data)) return [];
-  return data.filter(
-    (row): row is ProblemSetSummary =>
-      typeof row === "object" &&
-      row !== null &&
-      typeof (row as ProblemSetSummary).slug === "string" &&
-      typeof (row as ProblemSetSummary).title === "string" &&
-      typeof (row as ProblemSetSummary).subject === "string" &&
-      typeof (row as ProblemSetSummary).questionCount === "number",
-  );
 }
 
 function parseSet(raw: string): StoredProblemSet | null {
@@ -59,7 +46,7 @@ export async function listProblemSetSummaries(): Promise<ProblemSetSummary[]> {
   if (isR2Configured()) {
     const raw = await getObjectText(INDEX_KEY);
     if (!raw) return [];
-    return parseIndex(raw);
+    return parseProblemIndex(raw);
   }
   return readLocalSeedIndex();
 }

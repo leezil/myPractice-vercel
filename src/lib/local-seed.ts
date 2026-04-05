@@ -1,22 +1,9 @@
 import { readFile } from "fs/promises";
 import path from "path";
+import { parseProblemIndex } from "@/lib/problem-index";
 import type { ProblemSetSummary, StoredProblemSet } from "@/lib/types/problem";
 
 const SEED_DIR = path.join(process.cwd(), "content", "r2-seed");
-
-function parseIndex(raw: string): ProblemSetSummary[] {
-  const data = JSON.parse(raw) as unknown;
-  if (!Array.isArray(data)) return [];
-  return data.filter(
-    (row): row is ProblemSetSummary =>
-      typeof row === "object" &&
-      row !== null &&
-      typeof (row as ProblemSetSummary).slug === "string" &&
-      typeof (row as ProblemSetSummary).title === "string" &&
-      typeof (row as ProblemSetSummary).subject === "string" &&
-      typeof (row as ProblemSetSummary).questionCount === "number",
-  );
-}
 
 function parseSet(raw: string): StoredProblemSet | null {
   try {
@@ -39,7 +26,7 @@ function parseSet(raw: string): StoredProblemSet | null {
 export async function readLocalSeedIndex(): Promise<ProblemSetSummary[]> {
   try {
     const raw = await readFile(path.join(SEED_DIR, "index.json"), "utf-8");
-    return parseIndex(raw);
+    return parseProblemIndex(raw);
   } catch {
     return [];
   }
