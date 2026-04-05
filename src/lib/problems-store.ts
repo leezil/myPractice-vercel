@@ -1,3 +1,4 @@
+import { readLocalSeedIndex, readLocalSeedSet } from "@/lib/local-seed";
 import { INDEX_KEY, getObjectText, isR2Configured, setObjectKey } from "@/lib/r2";
 import type {
   ProblemSetSummary,
@@ -5,6 +6,13 @@ import type {
   StoredProblemSet,
   StoredQuestion,
 } from "@/lib/types/problem";
+
+/** R2가 설정되어 있으면 `r2`, 아니면 저장소 `content/r2-seed/` */
+export type ProblemDataSource = "r2" | "local";
+
+export function getProblemDataSource(): ProblemDataSource {
+  return isR2Configured() ? "r2" : "local";
+}
 
 function parseIndex(raw: string): ProblemSetSummary[] {
   const data = JSON.parse(raw) as unknown;
@@ -47,19 +55,23 @@ function toPublicQuestion(q: StoredQuestion) {
 }
 
 export async function listProblemSetSummaries(): Promise<ProblemSetSummary[]> {
-  if (!isR2Configured()) return [];
-  const raw = await getObjectText(INDEX_KEY);
-  if (!raw) return [];
-  return parseIndex(raw);
+  if (isR2Configured()) {
+    const raw = await getObjectText(INDEX_KEY);
+    if (!raw) return [];
+    return parseIndex(raw);
+  }
+  return readLocalSeedIndex();
 }
 
 export async function getStoredProblemSet(
   slug: string,
 ): Promise<StoredProblemSet | null> {
-  if (!isR2Configured()) return null;
-  const raw = await getObjectText(setObjectKey(slug));
-  if (!raw) return null;
-  return parseSet(raw);
+  if (isR2Configured()) {
+    const raw = await getObjectText(setObjectKey(slug));
+    if (!raw) return null;
+    return parseSet(raw);
+  }
+  return readLocalSeedSet(slug);
 }
 
 export function toPublicSet(stored: StoredProblemSet): PublicProblemSet {

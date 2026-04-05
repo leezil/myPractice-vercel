@@ -1,20 +1,16 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { QuizRunner } from "@/components/quiz-runner";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
 import { getStoredProblemSet, toPublicSet } from "@/lib/problems-store";
-import { isR2Configured } from "@/lib/r2";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
 export default async function SetPage({ params }: PageProps) {
   const { slug } = await params;
-  if (!isR2Configured()) {
-    redirect("/");
-  }
   const stored = await getStoredProblemSet(slug);
   if (!stored) {
     notFound();

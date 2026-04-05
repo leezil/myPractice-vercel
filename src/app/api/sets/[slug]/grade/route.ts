@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { isR2Configured } from "@/lib/r2";
 import { getStoredProblemSet } from "@/lib/problems-store";
 
 export const runtime = "nodejs";
@@ -12,7 +11,7 @@ type GradeBody = {
 
 export async function POST(req: Request, context: RouteContext) {
   const { slug } = await context.params;
-  if (!slug || !isR2Configured()) {
+  if (!slug) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 

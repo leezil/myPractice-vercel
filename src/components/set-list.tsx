@@ -20,6 +20,8 @@ type ApiList = {
   configured: boolean;
   sets: ProblemSetSummary[];
   message?: string;
+  source?: "r2" | "local";
+  r2Configured?: boolean;
 };
 
 export function SetList() {
@@ -66,14 +68,19 @@ export function SetList() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>R2 연결 필요</CardTitle>
+          <CardTitle>표시할 문제가 없습니다</CardTitle>
           <CardDescription>
             {data.message ??
-              "Vercel 환경 변수에 Cloudflare R2 자격 증명을 추가하고, 버킷 루트에 index.json을 올려주세요."}
+              "content/r2-seed를 추가하거나 Vercel에 R2 환경 변수를 설정하세요."}
           </CardDescription>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
-          <p className="mb-2 font-medium text-foreground">필요한 환경 변수</p>
+          <p className="mb-2 font-medium text-foreground">선택 1 — 임시 문제만 쓰기</p>
+          <p className="mb-4">
+            Git에 <code className="rounded bg-muted px-1 py-0.5 text-xs">content/r2-seed/</code> 가
+            포함되어 있으면 R2 없이도 데모 세트가 보입니다. (커밋 후 배포)
+          </p>
+          <p className="mb-2 font-medium text-foreground">선택 2 — R2 연결</p>
           <ul className="list-inside list-disc space-y-1">
             <li>CLOUDFLARE_R2_ACCOUNT_ID</li>
             <li>CLOUDFLARE_R2_ACCESS_KEY_ID</li>
@@ -81,8 +88,8 @@ export function SetList() {
             <li>CLOUDFLARE_R2_BUCKET_NAME</li>
           </ul>
           <p className="mt-4">
-            샘플 JSON은 저장소의 <code className="rounded bg-muted px-1 py-0.5 text-xs">content/r2-seed/</code>{" "}
-            를 R2에 그대로 업로드하면 됩니다.
+            R2에는 <code className="rounded bg-muted px-1 py-0.5 text-xs">content/r2-seed/</code> 와
+            같은 구조로 업로드하면 됩니다.
           </p>
         </CardContent>
       </Card>
@@ -95,7 +102,9 @@ export function SetList() {
         <CardHeader>
           <CardTitle>등록된 문제 세트가 없습니다</CardTitle>
           <CardDescription>
-            R2 버킷에 index.json과 sets/*.json을 업로드한 뒤 다시 확인하세요.
+            {data.r2Configured
+              ? "R2 버킷에 index.json과 sets/*.json을 업로드한 뒤 다시 확인하세요."
+              : "content/r2-seed/index.json을 추가하거나 R2를 연결하세요."}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -103,7 +112,17 @@ export function SetList() {
   }
 
   return (
-    <ul className="grid gap-4 sm:grid-cols-2">
+    <div className="space-y-4">
+      {data.source === "local" ? (
+        <p className="rounded-lg border border-dashed bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+          <Badge variant="outline" className="mr-2 align-middle">
+            임시 데이터
+          </Badge>
+          저장소의 <code className="rounded bg-muted px-1 text-xs">content/r2-seed/</code> 를 사용 중입니다.
+          R2 환경 변수를 넣으면 버킷 데이터로 전환됩니다.
+        </p>
+      ) : null}
+      <ul className="grid gap-4 sm:grid-cols-2">
       {data.sets.map((s) => (
         <li key={s.slug}>
           <Card className="h-full transition-shadow hover:shadow-md">
@@ -130,6 +149,7 @@ export function SetList() {
           </Card>
         </li>
       ))}
-    </ul>
+      </ul>
+    </div>
   );
 }
