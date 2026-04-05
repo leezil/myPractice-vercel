@@ -48,6 +48,7 @@ export async function POST(req: Request, context: RouteContext) {
     if (!q) {
       return NextResponse.json({ error: "Unknown question" }, { status: 404 });
     }
+    /** 클라이언트가 섞인 UI가 아니라, 저장소 `choices` 배열 기준 인덱스를 보냄 */
     const picked = body.choiceIndex;
     const valid =
       Number.isInteger(picked) &&
