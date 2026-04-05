@@ -15,7 +15,7 @@ export function SiteHeader() {
         </Link>
         <div className="flex items-center gap-2">
           <Link href="/" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
-            문제 목록
+            과목 선택
           </Link>
         </div>
       </div>

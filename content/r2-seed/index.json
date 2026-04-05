@@ -2,7 +2,7 @@
   {
     "slug": "demo-calculus",
     "title": "미적분 기초 객관식 (데모)",
-    "subject": "수학",
+    "subject": "인공지능 기초",
     "description": "극한·미분 기초 개념 확인용 샘플 세트입니다.",
     "questionCount": 3
   }
