@@ -9,9 +9,20 @@ import { getSubjectBySlug } from "@/lib/subjects";
 
 export const runtime = "nodejs";
 
+function debugPayload(allSets: Awaited<ReturnType<typeof listProblemSetSummaries>>, setsAfterFilter: typeof allSets) {
+  const uniqueSubjects = [...new Set(allSets.map((s) => s.subject))];
+  return {
+    indexEntryCount: allSets.length,
+    afterSubjectFilterCount: setsAfterFilter.length,
+    uniqueSubjectsInIndex: uniqueSubjects.slice(0, 30),
+    slugsInIndex: allSets.map((s) => s.slug),
+  };
+}
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const subjectSlug = searchParams.get("subject");
+  const wantDebug = searchParams.get("debug") === "1";
 
   const allSets = await listProblemSetSummaries();
   const source = getProblemDataSource();
@@ -26,6 +37,7 @@ export async function GET(req: Request) {
         sets: [] as typeof allSets,
         message:
           "R2가 연결되어 있지 않고, 저장소의 content/r2-seed/index.json도 없거나 비어 있습니다. 임시로는 content/r2-seed/에 샘플을 두거나, Vercel에 R2 환경 변수를 넣으세요.",
+        ...(wantDebug ? { _debug: debugPayload(allSets, []) } : {}),
       },
       { status: 200 },
     );
@@ -47,5 +59,6 @@ export async function GET(req: Request) {
     source,
     r2Configured,
     sets,
+    ...(wantDebug ? { _debug: debugPayload(allSets, sets) } : {}),
   });
 }
