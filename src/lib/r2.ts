@@ -1,4 +1,4 @@
-import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { GetObjectCommand, ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
 
 const INDEX_KEY = "index.json";
 
@@ -87,4 +87,47 @@ export async function getObjectText(key: string): Promise<string | null> {
     if (name === "NoSuchKey" || name === "NotFound") return null;
     throw e;
   }
+}
+
+function extractSlugFromKey(key: string, prefix: string): string | null {
+  if (!key.startsWith(prefix) || !key.endsWith(".json")) return null;
+  const rel = key.slice(prefix.length, -".json".length);
+  if (!rel || rel.includes("/")) return null;
+  return rel;
+}
+
+async function listSlugsByPrefix(prefix: string): Promise<string[]> {
+  if (!isR2Configured()) return [];
+  const client = getR2Client();
+  const bucket = getBucket();
+  const out: string[] = [];
+  let token: string | undefined;
+
+  do {
+    const res = await client.send(
+      new ListObjectsV2Command({
+        Bucket: bucket,
+        Prefix: prefix,
+        ContinuationToken: token,
+      }),
+    );
+    for (const obj of res.Contents ?? []) {
+      const key = obj.Key;
+      if (!key) continue;
+      const slug = extractSlugFromKey(key, prefix);
+      if (slug) out.push(slug);
+    }
+    token = res.IsTruncated ? res.NextContinuationToken : undefined;
+  } while (token);
+
+  return out;
+}
+
+/** R2에 index.json이 없을 때 sets/*.json 목록으로 슬러그를 추론 */
+export async function listSetSlugsFromR2(): Promise<string[]> {
+  const [root, nested] = await Promise.all([
+    listSlugsByPrefix("sets/"),
+    listSlugsByPrefix("content/r2-seed/sets/"),
+  ]);
+  return [...new Set([...root, ...nested])].sort();
 }

@@ -10,7 +10,7 @@ export const COURSE_SUBJECTS: CourseSubject[] = [
   { slug: "sw-design-patterns", title: "sw설계원칙과디자인패턴" },
   { slug: "smart-iot", title: "스마트 IOT 관리" },
   { slug: "ai-basics", title: "인공지능 기초" },
-  { slug: "ai-digital", title: "AI 디지털전환" },
+  { slug: "ai-digital", title: "AI디지털전환" },
 ];
 
 export function getSubjectBySlug(slug: string): CourseSubject | undefined {

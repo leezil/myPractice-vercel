@@ -1,4 +1,4 @@
-import { readFile } from "fs/promises";
+import { readdir, readFile } from "fs/promises";
 import path from "path";
 import { parseProblemIndex } from "@/lib/problem-index";
 import type { ProblemSetSummary, StoredProblemSet } from "@/lib/types/problem";
@@ -40,5 +40,20 @@ export async function readLocalSeedSet(slug: string): Promise<StoredProblemSet |
     return parseSet(raw);
   } catch {
     return null;
+  }
+}
+
+/** 로컬 시드의 sets/*.json 파일명으로 슬러그 목록 생성 */
+export async function readLocalSeedSlugs(): Promise<string[]> {
+  try {
+    const dir = path.join(SEED_DIR, "sets");
+    const entries = await readdir(dir, { withFileTypes: true });
+    return entries
+      .filter((e) => e.isFile() && e.name.endsWith(".json"))
+      .map((e) => e.name.slice(0, -".json".length))
+      .filter((slug) => slug.length > 0)
+      .sort();
+  } catch {
+    return [];
   }
 }

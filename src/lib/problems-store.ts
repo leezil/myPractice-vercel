@@ -1,9 +1,10 @@
-import { readLocalSeedIndex, readLocalSeedSet } from "@/lib/local-seed";
+import { readLocalSeedIndex, readLocalSeedSet, readLocalSeedSlugs } from "@/lib/local-seed";
 import { parseProblemIndex } from "@/lib/problem-index";
 import {
   INDEX_KEY_CANDIDATES,
   getObjectTextFirst,
   isR2Configured,
+  listSetSlugsFromR2,
   setObjectKeyCandidates,
 } from "@/lib/r2";
 import type {
@@ -50,10 +51,43 @@ function toPublicQuestion(q: StoredQuestion) {
 export async function listProblemSetSummaries(): Promise<ProblemSetSummary[]> {
   if (isR2Configured()) {
     const raw = await getObjectTextFirst(INDEX_KEY_CANDIDATES);
-    if (!raw) return [];
-    return parseProblemIndex(raw);
+    const fromIndex = raw ? parseProblemIndex(raw) : [];
+
+    // index.json이 없거나 일부만 있어도 sets/*.json 메타와 병합
+    const slugs = await listSetSlugsFromR2();
+    const sets = await Promise.all(slugs.map((slug) => getStoredProblemSet(slug)));
+    const fromSets: ProblemSetSummary[] = sets
+      .filter((set): set is StoredProblemSet => set !== null)
+      .map((set) => ({
+        slug: set.slug,
+        title: set.title,
+        subject: set.subject,
+        description: set.description,
+        questionCount: set.questions.length,
+      }));
+
+    const merged = new Map<string, ProblemSetSummary>();
+    for (const row of fromSets) merged.set(row.slug, row);
+    for (const row of fromIndex) merged.set(row.slug, row);
+    return [...merged.values()];
   }
-  return readLocalSeedIndex();
+  const localIndex = await readLocalSeedIndex();
+  const slugs = await readLocalSeedSlugs();
+  const sets = await Promise.all(slugs.map((slug) => readLocalSeedSet(slug)));
+  const fromSets: ProblemSetSummary[] = sets
+    .filter((set): set is StoredProblemSet => set !== null)
+    .map((set) => ({
+      slug: set.slug,
+      title: set.title,
+      subject: set.subject,
+      description: set.description,
+      questionCount: set.questions.length,
+    }));
+
+  const merged = new Map<string, ProblemSetSummary>();
+  for (const row of fromSets) merged.set(row.slug, row);
+  for (const row of localIndex) merged.set(row.slug, row);
+  return [...merged.values()];
 }
 
 export async function getStoredProblemSet(
