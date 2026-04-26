@@ -137,6 +137,11 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
     }
   }
 
+  function goToQuestion(index: number) {
+    if (index < 0 || index >= questions.length) return;
+    setCurrentIndex(index);
+  }
+
   function showSummary() {
     setPhase("summary");
   }
@@ -240,6 +245,43 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
           문제 {currentIndex + 1} / {questions.length}
         </Badge>
       </div>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium">문항 이동</CardTitle>
+          <CardDescription>
+            원하는 번호를 눌러 바로 이동할 수 있습니다.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            {questions.map((item, idx) => {
+              const o = outcomes[item.id];
+              const isCurrent = idx === currentIndex;
+              return (
+                <Button
+                  key={item.id}
+                  type="button"
+                  size="sm"
+                  variant={isCurrent ? "default" : "outline"}
+                  onClick={() => goToQuestion(idx)}
+                  className={cn(
+                    "h-8 min-w-8 px-2",
+                    !isCurrent && o?.correct && "border-green-600/55 text-green-700 hover:bg-green-50",
+                    !isCurrent &&
+                      o &&
+                      !o.correct &&
+                      "border-red-600/55 text-red-700 hover:bg-red-50",
+                  )}
+                  aria-label={`${idx + 1}번 문항으로 이동`}
+                >
+                  {idx + 1}
+                </Button>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
 
       {initialSet.passage ? (
         <Card className="border-dashed bg-muted/30">
