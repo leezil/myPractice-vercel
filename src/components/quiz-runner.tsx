@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, ChevronDown, ChevronUp, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -78,6 +78,9 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
   const [outcomes, setOutcomes] = useState<Record<string, QuestionOutcome>>({});
   const [loading, setLoading] = useState(false);
   const [phase, setPhase] = useState<"running" | "summary">("running");
+  const [isNavigatorOpen, setIsNavigatorOpen] = useState(false);
+  const navigatorScrollRef = useRef<HTMLDivElement | null>(null);
+  const currentButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const q = questions[currentIndex];
   const outcome = q ? outcomes[q.id] : undefined;
@@ -153,6 +156,17 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
     setPhase("running");
     setShuffleEpoch((e) => e + 1);
   }
+
+  useEffect(() => {
+    const container = navigatorScrollRef.current;
+    const activeButton = currentButtonRef.current;
+    if (!container || !activeButton) return;
+    activeButton.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "nearest",
+    });
+  }, [currentIndex, isNavigatorOpen]);
 
   if (phase === "summary") {
     return (
@@ -248,19 +262,47 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
 
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium">문항 이동</CardTitle>
-          <CardDescription>
+          <div className="flex items-center justify-between gap-2">
+            <CardTitle className="text-sm font-medium">문항 이동</CardTitle>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              className="h-7 px-2 md:hidden"
+              onClick={() => setIsNavigatorOpen((prev) => !prev)}
+              aria-expanded={isNavigatorOpen}
+              aria-label={isNavigatorOpen ? "문항 이동 접기" : "문항 이동 펼치기"}
+            >
+              {isNavigatorOpen ? (
+                <>
+                  접기
+                  <ChevronUp className="ml-1 size-4" aria-hidden />
+                </>
+              ) : (
+                <>
+                  펼치기
+                  <ChevronDown className="ml-1 size-4" aria-hidden />
+                </>
+              )}
+            </Button>
+          </div>
+          <CardDescription className="hidden md:block">
             원하는 번호를 눌러 바로 이동할 수 있습니다.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
+        <CardContent className={cn(!isNavigatorOpen && "hidden md:block")}>
+          <div
+            ref={navigatorScrollRef}
+            className="max-h-28 overflow-y-auto pr-1 md:max-h-none md:overflow-visible"
+          >
+            <div className="flex flex-wrap gap-2">
             {questions.map((item, idx) => {
               const o = outcomes[item.id];
               const isCurrent = idx === currentIndex;
               return (
                 <Button
                   key={item.id}
+                  ref={isCurrent ? currentButtonRef : null}
                   type="button"
                   size="sm"
                   variant={isCurrent ? "default" : "outline"}
@@ -279,6 +321,7 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
                 </Button>
               );
             })}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -381,7 +424,7 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
             </>
           ) : null}
 
-          <div className="flex flex-wrap gap-2 pt-2">
+          <div className="sticky bottom-0 -mx-2 flex flex-wrap gap-2 border-t bg-background/95 px-2 pb-2 pt-3 backdrop-blur sm:static sm:m-0 sm:border-0 sm:bg-transparent sm:p-0 sm:pt-2">
             {!outcome ? (
               <Button onClick={verifyCurrent} disabled={loading}>
                 {loading ? "확인 중…" : "정답 확인"}
