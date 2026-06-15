@@ -13,10 +13,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import type { PublicProblemSet } from "@/lib/types/problem";
+
+const CHOICE_LABELS = ["①", "②", "③", "④", "⑤", "⑥", "⑦"];
 
 /**
  * 보기(선택지)만 무작위 순열로 섞음. 정답이 데이터에서 몇 번이든(0,1,2…) 가능한 모든 화면 위치에 균등하게 나올 수 있음.
@@ -58,11 +59,12 @@ function buildShuffleMap(set: PublicProblemSet): Record<string, ReturnType<typeo
 
 type SingleGradeResponse = {
   correct: boolean;
-  correctIndex: number;
+  correctIndices: number[];
+  correctIndex?: number;
   explanation?: string;
 };
 
-type QuestionOutcome = SingleGradeResponse & { picked: number };
+type QuestionOutcome = SingleGradeResponse & { picked: number[] };
 
 export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
   const { questions } = initialSet;
@@ -74,7 +76,7 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
   );
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selection, setSelection] = useState<Record<string, string>>({});
+  const [selection, setSelection] = useState<Record<string, string[]>>({});
   const [outcomes, setOutcomes] = useState<Record<string, QuestionOutcome>>({});
   const [loading, setLoading] = useState(false);
   const [phase, setPhase] = useState<"running" | "summary">("running");
@@ -97,15 +99,16 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
   async function verifyCurrent() {
     if (!q) return;
     const raw = selection[q.id];
-    if (raw === undefined || raw === "") {
-      toast.warning("답을 선택해 주세요.");
+    if (!raw || raw.length === 0) {
+      toast.warning("답을 하나 이상 선택해 주세요.");
       return;
     }
-    const displayIdx = Number(raw);
+    const displayIndices = raw.map(Number).filter((n) => !Number.isNaN(n));
     const sh = shuffleMap[q.id];
-    /** 서버·JSON의 correctIndex와 같은 축: 원본 choices 배열의 인덱스 */
-    const originalChoiceIndex = sh.displayToOriginal[displayIdx];
-    if (originalChoiceIndex === undefined) {
+    const originalChoiceIndices = displayIndices
+      .map((d) => sh.displayToOriginal[d])
+      .filter((i): i is number => i !== undefined);
+    if (originalChoiceIndices.length !== displayIndices.length) {
       toast.error("선택이 올바르지 않습니다.");
       return;
     }
@@ -116,7 +119,7 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           questionId: q.id,
-          choiceIndex: originalChoiceIndex,
+          choiceIndices: originalChoiceIndices,
         }),
       });
       if (!res.ok) {
@@ -126,7 +129,7 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
       const json = (await res.json()) as SingleGradeResponse;
       setOutcomes((prev) => ({
         ...prev,
-        [q.id]: { ...json, picked: originalChoiceIndex },
+        [q.id]: { ...json, picked: originalChoiceIndices },
       }));
       toast[json.correct ? "success" : "message"](json.correct ? "정답입니다." : "오답입니다.");
     } finally {
@@ -221,7 +224,13 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
                   </div>
                   {!o.correct ? (
                     <CardDescription>
-                      정답: {item.choices[o.correctIndex] ?? `선택지 ${o.correctIndex + 1}`}
+                      정답:{" "}
+                      {o.correctIndices
+                        .map(
+                          (ci) =>
+                            item.choices[ci] ?? `선택지 ${ci + 1}`,
+                        )
+                        .join(" / ")}
                     </CardDescription>
                   ) : null}
                 </CardHeader>
@@ -361,32 +370,31 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
           </div>
           {outcome && !outcome.correct ? (
             <CardDescription>
-              정답: {q.choices[outcome.correctIndex] ?? `선택지 ${outcome.correctIndex + 1}`}
+              정답:{" "}
+              {outcome.correctIndices
+                .map((ci) => q.choices[ci] ?? `선택지 ${ci + 1}`)
+                .join(" / ")}
             </CardDescription>
           ) : null}
         </CardHeader>
         <CardContent className="space-y-4">
-          <RadioGroup
-            value={
-              outcome
-                ? String(shuffleMap[q.id].originalToDisplay[outcome.picked])
-                : (selection[q.id] ?? "")
-            }
-            onValueChange={(v) => {
-              if (outcome) return;
-              setSelection((prev) => ({ ...prev, [q.id]: v }));
-            }}
-            disabled={Boolean(outcome)}
-            className="gap-3"
-          >
+          <p className="text-xs text-muted-foreground">
+            해당하는 보기를 모두 선택한 뒤 정답 확인을 누르세요.
+          </p>
+          <div className="space-y-3">
             {shuffleMap[q.id].choices.map((c, displayIdx) => {
               const id = `${q.id}-d${displayIdx}`;
               const sh = shuffleMap[q.id];
               const o = outcome;
               const origAtRow = sh.displayToOriginal[displayIdx];
-              const isAnswerRow = o != null && origAtRow === o.correctIndex;
+              const isAnswerRow =
+                o != null && o.correctIndices.includes(origAtRow);
               const isWrongPick =
-                o != null && origAtRow === o.picked && !o.correct;
+                o != null && o.picked.includes(origAtRow) && !isAnswerRow;
+              const checked =
+                o != null
+                  ? o.picked.includes(origAtRow)
+                  : (selection[q.id] ?? []).includes(String(displayIdx));
               return (
                 <div
                   key={id}
@@ -398,7 +406,24 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
                       "border-red-600/55 bg-red-500/[0.12] dark:border-red-500/45 dark:bg-red-500/10",
                   )}
                 >
-                  <RadioGroupItem value={String(displayIdx)} id={id} />
+                  <input
+                    type="checkbox"
+                    id={id}
+                    checked={checked}
+                    disabled={Boolean(outcome)}
+                    onChange={(e) => {
+                      if (outcome) return;
+                      const val = String(displayIdx);
+                      setSelection((prev) => {
+                        const cur = prev[q.id] ?? [];
+                        const next = e.target.checked
+                          ? [...cur, val]
+                          : cur.filter((x) => x !== val);
+                        return { ...prev, [q.id]: next };
+                      });
+                    }}
+                    className="size-4 shrink-0 accent-primary"
+                  />
                   <Label
                     htmlFor={id}
                     className={cn(
@@ -407,12 +432,15 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
                       isWrongPick && "text-red-950 dark:text-red-100",
                     )}
                   >
+                    <span className="mr-1.5 font-medium text-muted-foreground">
+                      {CHOICE_LABELS[displayIdx] ?? `${displayIdx + 1}.`}
+                    </span>
                     {c}
                   </Label>
                 </div>
               );
             })}
-          </RadioGroup>
+          </div>
 
           {outcome?.explanation ? (
             <>

@@ -49,3 +49,7 @@ yarn-error.log*
 
 *.md
 *.mdc
+*.txt
+
+# R2 업로드용 로컬 시드 (GitHub 제외, R2 또는 로컬 개발에서만 사용)
+/content/r2-seed/

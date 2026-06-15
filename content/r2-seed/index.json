@@ -1,9 +1,44 @@
 [
   {
-    "slug": "demo-calculus",
-    "title": "미적분 기초 객관식 (데모)",
-    "subject": "인공지능 기초",
-    "description": "극한·미분 기초 개념 확인용 샘플 세트입니다.",
-    "questionCount": 3
+    "slug": "history-0428-crisis-leadership",
+    "title": "0428 조직 내 위기관리와 리더십",
+    "subject": "역사 속 리더십의 빛과 그림자",
+    "description": "위기관리 정의, 링컨·처칠·케네디·이순신 사례 (기말 범위)",
+    "questionCount": 101
+  },
+  {
+    "slug": "history-0512-wartime-degaulle-hitler",
+    "title": "0512 전시 리더십 - 드골과 히틀러",
+    "subject": "역사 속 리더십의 빛과 그림자",
+    "description": "전시 리더십 유형, 드골·히틀러·비시 정부 (기말 범위)",
+    "questionCount": 83
+  },
+  {
+    "slug": "history-0519-women-leadership",
+    "title": "0519 여성 리더십 - 클레오파트라와 엘리자베스 1세",
+    "subject": "역사 속 리더십의 빛과 그림자",
+    "description": "여성 리더십, 클레오파트라·엘리자베스 1세 (기말 범위)",
+    "questionCount": 78
+  },
+  {
+    "slug": "history-0526-ethics-gandhi-lincoln",
+    "title": "0526 리더십과 윤리 - 간디와 링컨",
+    "subject": "역사 속 리더십의 빛과 그림자",
+    "description": "윤리적 리더십, 간디·링컨 (기말 범위)",
+    "questionCount": 64
+  },
+  {
+    "slug": "history-0602-shadow-stalin-mao",
+    "title": "0602 리더십의 그림자 - 스탈린과 마오쩌둥",
+    "subject": "역사 속 리더십의 빛과 그림자",
+    "description": "그림자 리더십, 스탈린·마오쩌둥 (기말 범위)",
+    "questionCount": 84
+  },
+  {
+    "slug": "history-0609-modern-leadership",
+    "title": "0609 역사에서 배우는 현대 리더십의 조건",
+    "subject": "역사 속 리더십의 빛과 그림자",
+    "description": "리더십 유형 정리, 현대 리더십 조건 (기말 범위)",
+    "questionCount": 42
   }
 ]

@@ -14,8 +14,10 @@ export type StoredQuestion = {
   passage?: string;
   stem: string;
   choices: string[];
-  /** 0-based index */
-  correctIndex: number;
+  /** 복수 정답 (0-based, 7지선다 중 3~4개) */
+  correctIndices?: number[];
+  /** 단일 정답 (레거시·데모 세트) */
+  correctIndex?: number;
   explanation?: string;
 };
 
