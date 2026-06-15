@@ -272,33 +272,9 @@ def passage_context(major: str, section: str, unit: str) -> str:
     return ""
 
 
-def needs_context_prefix(text: str, topic: str) -> bool:
-    topic_words = [w for w in re.split(r"[\s·\-—:]+", topic) if len(w) >= 2]
-    if any(w in text for w in topic_words[:3]):
-        return False
-    leaders = (
-        "링컨", "처칠", "케네디", "이순신", "드골", "드골", "히틀러",
-        "클레오파트라", "엘리자베스", "간디", "스탈린", "마오", "비시",
-    )
-    if any(name in text for name in leaders):
-        return False
-    return True
-
-
-def format_choice_text(text: str, topic: str) -> str:
-    text = normalize_text(text)
-    if not needs_context_prefix(text, topic):
-        return text
-    short_topic = clean_label(topic)
-    if len(short_topic) > 36:
-        short_topic = short_topic[:33] + "…"
-    # "사전 예방: ..." 형태는 주제와 합쳐 읽기 쉽게
-    m = re.match(r"^([^:：]{2,28})[:：]\s*(.+)$", text)
-    if m:
-        label, body = m.group(1).strip(), m.group(2).strip()
-        if label not in short_topic:
-            return f"{short_topic} — {label}: {body}"
-    return f"{short_topic} — {text}"
+def format_choice_text(text: str, _topic: str = "") -> str:
+    """선지는 본문만 표시. 주제·맥락은 발문(passage/stem)에서 제공."""
+    return normalize_text(text)
 
 
 def build_stem(topic: str, major: str) -> str:
