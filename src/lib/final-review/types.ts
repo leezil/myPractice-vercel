@@ -40,7 +40,7 @@ export type ReviewSubsection = {
   scenarios?: {
     situation: string;
     article?: string;
-    conclusion: string;
+    conclusion?: string;
   }[];
   compareTable?: {
     headers: string[];
@@ -77,10 +77,21 @@ export type EssayMockQuestion = {
   tip?: string;
 };
 
+/** 수업 녹음·복습에서 다룬 보완 정리 (14주차 자료와 분리) */
+export type LectureSupplement = {
+  intro: string;
+  groups: {
+    slug: string;
+    title: string;
+    subsections: ReviewSubsection[];
+  }[];
+};
+
 export type SubjectFinalReview = {
   intro: string;
   sets: ReviewSet[];
   requirementLists?: RequirementList[];
   scenarios?: ReviewScenario[];
   essayMocks?: EssayMockQuestion[];
+  lectureSupplement?: LectureSupplement;
 };

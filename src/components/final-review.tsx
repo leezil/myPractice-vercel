@@ -7,6 +7,7 @@ import {
   FileText,
   Lightbulb,
   ListChecks,
+  Mic,
   User,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +19,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import type { ReviewSubsection, SubjectFinalReview } from "@/lib/final-review/types";
+import type { LectureSupplement, ReviewSubsection, SubjectFinalReview } from "@/lib/final-review/types";
 
 type FinalReviewProps = SubjectFinalReview & {
   subjectTitle: string;
@@ -66,14 +67,16 @@ function SubsectionBlock({ section }: { section: ReviewSubsection }) {
         <div className="mt-3 space-y-2">
           {section.scenarios.map((s) => (
             <div
-              key={`${s.situation}-${s.conclusion}`}
+              key={`${s.situation}-${s.article ?? ""}`}
               className="rounded-md border border-primary/15 bg-background p-3 text-sm"
             >
               <p className="font-medium text-foreground">예: {s.situation}</p>
               {s.article && (
                 <p className="mt-1 text-xs text-primary">{s.article}</p>
               )}
-              <p className="mt-1 text-muted-foreground">→ {s.conclusion}</p>
+              {s.conclusion && (
+                <p className="mt-1 text-muted-foreground">→ {s.conclusion}</p>
+              )}
             </div>
           ))}
         </div>
@@ -310,6 +313,68 @@ function EssayMockSection({
   );
 }
 
+function LectureSupplementSection({
+  supplement,
+}: {
+  supplement: LectureSupplement;
+}) {
+  return (
+    <section id="lecture-supplement" className="scroll-mt-20" aria-labelledby="lecture-supplement-heading">
+      <div className="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/5 p-6">
+        <div className="flex items-start gap-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-400">
+            <Mic className="size-5" aria-hidden />
+          </span>
+          <div>
+            <h2 id="lecture-supplement-heading" className="text-lg font-semibold tracking-tight">
+              수업 보완 정리
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+              {supplement.intro}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <nav aria-label="수업 보완 목차" className="mb-6 rounded-xl border border-amber-500/20 p-4">
+        <p className="mb-3 flex items-center gap-2 text-sm font-medium">
+          <Mic className="size-4 text-amber-600 dark:text-amber-400" aria-hidden />
+          수업 보완 목차
+        </p>
+        <ol className="grid gap-2 sm:grid-cols-2">
+          {supplement.groups.map((group, i) => (
+            <li key={group.slug}>
+              <a
+                href={`#${group.slug}`}
+                className="block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted"
+              >
+                <span className="text-muted-foreground">{i + 1}.</span> {group.title}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <div className="flex flex-col gap-8">
+        {supplement.groups.map((group) => (
+          <section key={group.slug} id={group.slug} className="scroll-mt-20">
+            <Card className="border-amber-500/20">
+              <CardHeader className="border-b border-amber-500/10">
+                <CardTitle className="text-lg">{group.title}</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-3 pt-4">
+                {group.subsections.map((sub) => (
+                  <SubsectionBlock key={sub.title} section={sub} />
+                ))}
+              </CardContent>
+            </Card>
+          </section>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function FinalReview({
   subjectTitle,
   intro,
@@ -317,6 +382,7 @@ export function FinalReview({
   requirementLists,
   scenarios,
   essayMocks,
+  lectureSupplement,
 }: FinalReviewProps) {
   return (
     <div className="flex flex-col gap-8">
@@ -349,6 +415,17 @@ export function FinalReview({
               </a>
             </li>
           ))}
+          {lectureSupplement && lectureSupplement.groups.length > 0 && (
+            <li className="sm:col-span-2">
+              <a
+                href="#lecture-supplement"
+                className="flex items-center gap-2 rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-sm transition-colors hover:bg-amber-500/10"
+              >
+                <Mic className="size-4 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
+                수업 보완 정리 (별도)
+              </a>
+            </li>
+          )}
         </ol>
       </nav>
 
@@ -357,6 +434,13 @@ export function FinalReview({
           <ReviewSetSection key={set.slug} set={set} />
         ))}
       </div>
+
+      {lectureSupplement && lectureSupplement.groups.length > 0 && (
+        <>
+          <Separator />
+          <LectureSupplementSection supplement={lectureSupplement} />
+        </>
+      )}
 
       {essayMocks && essayMocks.length > 0 && (
         <EssayMockSection essayMocks={essayMocks} />
