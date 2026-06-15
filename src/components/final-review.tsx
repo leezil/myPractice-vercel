@@ -1,6 +1,14 @@
 import Link from "next/link";
 import type { ComponentType } from "react";
-import { BookMarked, Calendar, Lightbulb, Tag, User } from "lucide-react";
+import {
+  BookMarked,
+  Calendar,
+  ClipboardList,
+  FileText,
+  Lightbulb,
+  ListChecks,
+  User,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -10,11 +18,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import type { ReviewSet } from "@/lib/final-review/types";
+import type { ReviewSubsection, SubjectFinalReview } from "@/lib/final-review/types";
 
-type FinalReviewProps = {
+type FinalReviewProps = SubjectFinalReview & {
   subjectTitle: string;
-  sets: ReviewSet[];
 };
 
 function SectionLabel({
@@ -32,132 +39,285 @@ function SectionLabel({
   );
 }
 
-function ReviewSetSection({ set }: { set: ReviewSet }) {
-  const anchor = set.slug;
+function SubsectionBlock({ section }: { section: ReviewSubsection }) {
+  return (
+    <div className="rounded-lg border bg-muted/20 p-4">
+      <h4 className="font-medium text-foreground">{section.title}</h4>
+      {section.paragraphs?.map((p) => (
+        <p key={p} className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          {p}
+        </p>
+      ))}
+      {section.bullets && section.bullets.length > 0 && (
+        <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-muted-foreground">
+          {section.bullets.map((b) => (
+            <li key={b}>{b}</li>
+          ))}
+        </ul>
+      )}
+      {section.numberedItems && section.numberedItems.length > 0 && (
+        <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm leading-relaxed text-muted-foreground">
+          {section.numberedItems.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ol>
+      )}
+      {section.scenarios && section.scenarios.length > 0 && (
+        <div className="mt-3 space-y-2">
+          {section.scenarios.map((s) => (
+            <div
+              key={`${s.situation}-${s.conclusion}`}
+              className="rounded-md border border-primary/15 bg-background p-3 text-sm"
+            >
+              <p className="font-medium text-foreground">예: {s.situation}</p>
+              {s.article && (
+                <p className="mt-1 text-xs text-primary">{s.article}</p>
+              )}
+              <p className="mt-1 text-muted-foreground">→ {s.conclusion}</p>
+            </div>
+          ))}
+        </div>
+      )}
+      {section.compareTable && (
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full min-w-[480px] text-left text-sm">
+            <thead>
+              <tr className="border-b text-xs text-muted-foreground">
+                {section.compareTable.headers.map((h) => (
+                  <th key={h} className="px-3 py-2 font-medium">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {section.compareTable.rows.map((row) => (
+                <tr key={row.join("-")} className="border-b border-border/60 last:border-0">
+                  {row.map((cell) => (
+                    <td key={cell} className="px-3 py-2 text-muted-foreground">
+                      {cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {section.note && (
+        <p className="mt-3 rounded-md bg-primary/10 px-3 py-2 text-xs text-primary">
+          {section.note}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function ReviewSetSection({
+  set,
+}: {
+  set: SubjectFinalReview["sets"][number];
+}) {
+  const hasSubsections = set.subsections && set.subsections.length > 0;
+  const hasPeople = set.people.length > 0;
+  const eventsLabel = hasPeople ? "사건 · 연도" : "조문 · 유형";
 
   return (
-    <section id={anchor} className="scroll-mt-20">
+    <section id={set.slug} className="scroll-mt-20">
       <Card>
         <CardHeader className="border-b">
           <CardTitle className="text-lg">{set.title}</CardTitle>
           <CardDescription>{set.description}</CardDescription>
-          <div className="flex flex-wrap gap-1.5 pt-2">
-            {set.keywords.slice(0, 8).map((kw) => (
-              <Badge key={kw} variant="secondary">
-                {kw}
-              </Badge>
-            ))}
-          </div>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-6 pt-4">
-          <div>
-            <SectionLabel icon={Lightbulb}>핵심 개념</SectionLabel>
-            <ul className="mt-3 grid gap-3 sm:grid-cols-2">
-              {set.concepts.map((c) => (
-                <li
-                  key={c.name}
-                  className="rounded-lg border bg-muted/30 p-3"
-                >
-                  <p className="font-medium text-foreground">{c.name}</p>
-                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-                    {c.keywords.join(" · ")}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <Separator />
-
-          <div>
-            <SectionLabel icon={User}>인물</SectionLabel>
-            <div className="mt-3 overflow-x-auto">
-              <table className="w-full min-w-[480px] text-left text-sm">
-                <thead>
-                  <tr className="border-b text-xs text-muted-foreground">
-                    <th className="pb-2 pr-4 font-medium">이름</th>
-                    <th className="pb-2 pr-4 font-medium">역할</th>
-                    <th className="pb-2 pr-4 font-medium whitespace-nowrap">연도</th>
-                    <th className="pb-2 font-medium">키워드</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {set.people.map((p) => (
-                    <tr key={p.name} className="border-b border-border/60 last:border-0">
-                      <td className="py-2.5 pr-4 font-medium whitespace-nowrap">{p.name}</td>
-                      <td className="py-2.5 pr-4 text-muted-foreground">{p.role}</td>
-                      <td className="py-2.5 pr-4 whitespace-nowrap text-primary">{p.years ?? "—"}</td>
-                      <td className="py-2.5 text-xs text-muted-foreground">
-                        {p.keywords.join(" · ")}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <Separator />
-
-          <div>
-            <SectionLabel icon={Calendar}>사건 · 연도</SectionLabel>
-            <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-              {set.events.map((e) => (
-                <li
-                  key={`${e.name}-${e.year}`}
-                  className="flex gap-3 rounded-lg border p-3"
-                >
-                  <span className="shrink-0 rounded-md bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
-                    {e.year}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="font-medium leading-snug">{e.name}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {e.keywords.join(" · ")}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <Separator />
-
-          <div>
-            <SectionLabel icon={Tag}>암기 키워드</SectionLabel>
-            <div className="mt-3 flex flex-wrap gap-1.5">
+          {set.keywords.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-2">
               {set.keywords.map((kw) => (
-                <Badge key={kw} variant="outline">
+                <Badge key={kw} variant="secondary">
                   {kw}
                 </Badge>
               ))}
             </div>
-          </div>
-
-          <div className="rounded-lg bg-primary/5 p-4 ring-1 ring-primary/10">
-            <p className="text-sm font-semibold">한 줄 정리</p>
-            <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-muted-foreground">
-              {set.takeaways.map((t) => (
-                <li key={t}>{t}</li>
+          )}
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4 pt-4">
+          {hasSubsections ? (
+            <div className="flex flex-col gap-3">
+              {set.subsections!.map((sub) => (
+                <SubsectionBlock key={sub.title} section={sub} />
               ))}
-            </ul>
-          </div>
+            </div>
+          ) : (
+            <>
+              {set.concepts.length > 0 && (
+                <div>
+                  <SectionLabel icon={Lightbulb}>핵심 개념</SectionLabel>
+                  <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+                    {set.concepts.map((c) => (
+                      <li key={c.name} className="rounded-lg border bg-muted/30 p-3">
+                        <p className="font-medium text-foreground">{c.name}</p>
+                        <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                          {c.keywords.join(" · ")}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
-          <div className="flex justify-end">
-            <Link
-              href={`/sets/${set.slug}`}
-              className="text-sm font-medium text-primary hover:underline"
-            >
-              이 세트 문제 풀기 →
-            </Link>
-          </div>
+              {hasPeople && (
+                <>
+                  <Separator />
+                  <div>
+                    <SectionLabel icon={User}>인물</SectionLabel>
+                    <div className="mt-3 overflow-x-auto">
+                      <table className="w-full min-w-[480px] text-left text-sm">
+                        <thead>
+                          <tr className="border-b text-xs text-muted-foreground">
+                            <th className="pb-2 pr-4 font-medium">이름</th>
+                            <th className="pb-2 pr-4 font-medium">역할</th>
+                            <th className="pb-2 pr-4 font-medium whitespace-nowrap">
+                              연도
+                            </th>
+                            <th className="pb-2 font-medium">키워드</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {set.people.map((p) => (
+                            <tr
+                              key={p.name}
+                              className="border-b border-border/60 last:border-0"
+                            >
+                              <td className="py-2.5 pr-4 font-medium whitespace-nowrap">
+                                {p.name}
+                              </td>
+                              <td className="py-2.5 pr-4 text-muted-foreground">
+                                {p.role}
+                              </td>
+                              <td className="py-2.5 pr-4 whitespace-nowrap text-primary">
+                                {p.years ?? "—"}
+                              </td>
+                              <td className="py-2.5 text-xs text-muted-foreground">
+                                {p.keywords.join(" · ")}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {set.events.length > 0 && (
+                <>
+                  <Separator />
+                  <div>
+                    <SectionLabel icon={Calendar}>{eventsLabel}</SectionLabel>
+                    <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                      {set.events.map((e) => (
+                        <li
+                          key={`${e.name}-${e.year}`}
+                          className="flex gap-3 rounded-lg border p-3"
+                        >
+                          <span className="shrink-0 rounded-md bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                            {e.year}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="font-medium leading-snug">{e.name}</p>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              {e.keywords.join(" · ")}
+                            </p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+
+          {set.takeaways.length > 0 && (
+            <>
+              {!hasSubsections && <Separator />}
+              <div className="rounded-lg bg-primary/5 p-4 ring-1 ring-primary/10">
+                <p className="text-sm font-semibold">한 줄 정리</p>
+                <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-muted-foreground">
+                  {set.takeaways.map((t) => (
+                    <li key={t}>{t}</li>
+                  ))}
+                </ul>
+              </div>
+            </>
+          )}
+
+          {set.quizSlug && (
+            <div className="flex justify-end">
+              <Link
+                href={`/sets/${set.quizSlug}`}
+                className="text-sm font-medium text-primary hover:underline"
+              >
+                이 세트 문제 풀기 →
+              </Link>
+            </div>
+          )}
         </CardContent>
       </Card>
     </section>
   );
 }
 
-export function FinalReview({ subjectTitle, sets }: FinalReviewProps) {
+function EssayMockSection({
+  essayMocks,
+}: {
+  essayMocks: NonNullable<SubjectFinalReview["essayMocks"]>;
+}) {
+  return (
+    <section aria-labelledby="essay-mock-heading">
+      <h2 id="essay-mock-heading" className="mb-4 text-lg font-semibold">
+        모의 서술형 (2문항)
+      </h2>
+      <div className="grid gap-4">
+        {essayMocks.map((q) => (
+          <Card key={q.id}>
+            <CardHeader className="border-b pb-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant={q.type === "list" ? "default" : "secondary"}>
+                  {q.type === "list" ? "요건 나열" : "사례 적용"}
+                </Badge>
+                <CardTitle className="text-base">{q.label}</CardTitle>
+              </div>
+              <CardDescription className="mt-2 text-sm text-foreground">
+                {q.prompt}
+              </CardDescription>
+              {q.tip && (
+                <p className="text-xs text-muted-foreground">{q.tip}</p>
+              )}
+            </CardHeader>
+            <CardContent className="pt-4">
+              <details>
+                <summary className="cursor-pointer text-sm font-medium text-primary hover:underline">
+                  모범 답안 보기
+                </summary>
+                <pre className="mt-3 whitespace-pre-wrap rounded-lg bg-muted/50 p-4 text-sm leading-relaxed">
+                  {q.modelAnswer}
+                </pre>
+              </details>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function FinalReview({
+  subjectTitle,
+  intro,
+  sets,
+  requirementLists,
+  scenarios,
+  essayMocks,
+}: FinalReviewProps) {
   return (
     <div className="flex flex-col gap-8">
       <div className="rounded-xl border bg-gradient-to-br from-primary/5 to-transparent p-6">
@@ -168,16 +328,16 @@ export function FinalReview({ subjectTitle, sets }: FinalReviewProps) {
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">기말 정리</h1>
             <p className="mt-1 text-muted-foreground">{subjectTitle}</p>
-            <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
-              6개 강의 범위를 키워드·인물·사건·연도 중심으로 정리했습니다. 문제 풀이 전
-              빠르게 훑어보세요.
-            </p>
+            <p className="mt-3 max-w-2xl text-sm text-muted-foreground">{intro}</p>
           </div>
         </div>
       </div>
 
-      <nav aria-label="강의 목차" className="rounded-xl border p-4">
-        <p className="mb-3 text-sm font-medium">목차</p>
+      <nav aria-label="목차" className="rounded-xl border p-4">
+        <p className="mb-3 flex items-center gap-2 text-sm font-medium">
+          <ClipboardList className="size-4" aria-hidden />
+          목차 (14주차 자료 순)
+        </p>
         <ol className="grid gap-2 sm:grid-cols-2">
           {sets.map((set, i) => (
             <li key={set.slug}>
@@ -197,6 +357,85 @@ export function FinalReview({ subjectTitle, sets }: FinalReviewProps) {
           <ReviewSetSection key={set.slug} set={set} />
         ))}
       </div>
+
+      {essayMocks && essayMocks.length > 0 && (
+        <EssayMockSection essayMocks={essayMocks} />
+      )}
+
+      {requirementLists && requirementLists.length > 0 && (
+        <section aria-labelledby="req-heading">
+          <h2 id="req-heading" className="mb-4 flex items-center gap-2 text-lg font-semibold">
+            <ListChecks className="size-5 text-primary" aria-hidden />
+            요건 나열형 암기 (중간고사 패턴)
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {requirementLists.map((list) => (
+              <Card
+                key={list.id}
+                className={
+                  list.priority === "high"
+                    ? "ring-2 ring-primary/20"
+                    : undefined
+                }
+              >
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-base">{list.title}</CardTitle>
+                    {list.priority === "high" && (
+                      <Badge>출제 유력</Badge>
+                    )}
+                  </div>
+                  {list.note && (
+                    <CardDescription className="text-xs">{list.note}</CardDescription>
+                  )}
+                </CardHeader>
+                <CardContent>
+                  <ol className="list-decimal space-y-1.5 pl-5 text-sm leading-relaxed">
+                    {list.items.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ol>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {scenarios && scenarios.length > 0 && (
+        <section aria-labelledby="scenario-heading">
+          <h2 id="scenario-heading" className="mb-4 flex items-center gap-2 text-lg font-semibold">
+            <FileText className="size-5 text-primary" aria-hidden />
+            사례형 대비 (자료 예시)
+          </h2>
+          <div className="overflow-x-auto rounded-xl border">
+            <table className="w-full min-w-[640px] text-left text-sm">
+              <thead>
+                <tr className="border-b bg-muted/40 text-xs text-muted-foreground">
+                  <th className="px-4 py-3 font-medium">주제</th>
+                  <th className="px-4 py-3 font-medium">사실관계</th>
+                  <th className="px-4 py-3 font-medium">조문·권리</th>
+                  <th className="px-4 py-3 font-medium">결론</th>
+                </tr>
+              </thead>
+              <tbody>
+                {scenarios.map((s) => (
+                  <tr key={s.id} className="border-b border-border/60 last:border-0">
+                    <td className="px-4 py-3 whitespace-nowrap text-muted-foreground">
+                      {s.topic}
+                    </td>
+                    <td className="px-4 py-3">{s.situation}</td>
+                    <td className="px-4 py-3 whitespace-nowrap font-medium text-primary">
+                      {s.article ?? "—"}
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">{s.conclusion}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

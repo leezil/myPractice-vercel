@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { FinalReview } from "@/components/final-review";
 import { SiteHeader } from "@/components/site-header";
 import { buttonVariants } from "@/components/ui/button-variants";
-import { getFinalReviewSets, hasFinalReview } from "@/lib/final-review";
+import { getSubjectFinalReview, hasFinalReview } from "@/lib/final-review";
 import { getSubjectBySlug } from "@/lib/subjects";
 import { cn } from "@/lib/utils";
 
@@ -17,8 +17,8 @@ export default async function FinalReviewPage({ params }: PageProps) {
     notFound();
   }
 
-  const sets = getFinalReviewSets(slug);
-  if (!sets?.length) {
+  const review = getSubjectFinalReview(slug);
+  if (!review?.sets.length) {
     notFound();
   }
 
@@ -36,7 +36,7 @@ export default async function FinalReviewPage({ params }: PageProps) {
           <ArrowLeft className="size-4" aria-hidden />
           {course.title}
         </Link>
-        <FinalReview subjectTitle={course.title} sets={sets} />
+        <FinalReview subjectTitle={course.title} {...review} />
       </main>
     </>
   );
