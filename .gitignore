@@ -46,3 +46,6 @@ yarn-error.log*
 # 로컬 생성 문제은행·PDF 추출 텍스트
 /local-question-banks/
 /local-question-source/
+
+*.md
+*.mdc
