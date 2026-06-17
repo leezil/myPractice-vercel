@@ -468,7 +468,7 @@ export function FinalReview({
       <nav aria-label="목차" className="rounded-xl border p-4">
         <p className="mb-3 flex items-center gap-2 text-sm font-medium">
           <ClipboardList className="size-4" aria-hidden />
-          목차 (14주차 자료 순)
+          목차
         </p>
         <ol className="grid gap-2 sm:grid-cols-2">
           {sets.map((set, i) => (
