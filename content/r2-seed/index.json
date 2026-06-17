@@ -1,5 +1,47 @@
 [
   {
+    "slug": "dp-command",
+    "title": "커맨드 패턴",
+    "subject": "sw설계원칙과디자인패턴",
+    "description": "만능 버튼, 요청 캡슐화, Undo/Redo",
+    "questionCount": 8
+  },
+  {
+    "slug": "dp-patterns-intro",
+    "title": "디자인 패턴 이해 (2-4)",
+    "subject": "sw설계원칙과디자인패턴",
+    "description": "패턴 구조, GoF, UML 협력·순차 다이어그램",
+    "questionCount": 8
+  },
+  {
+    "slug": "dp-requirements-modeling",
+    "title": "요구 모델링 (1-4)",
+    "subject": "sw설계원칙과디자인패턴",
+    "description": "모델링 기초, UML, 정·동·제어 모델링, 모델 검증",
+    "questionCount": 8
+  },
+  {
+    "slug": "dp-singleton",
+    "title": "싱글톤 패턴",
+    "subject": "sw설계원칙과디자인패턴",
+    "description": "단일 인스턴스, lazy initialization",
+    "questionCount": 8
+  },
+  {
+    "slug": "dp-state",
+    "title": "스테이트 패턴",
+    "subject": "sw설계원칙과디자인패턴",
+    "description": "선풍기·형광등, 상태 캡슐화",
+    "questionCount": 8
+  },
+  {
+    "slug": "dp-strategy",
+    "title": "스트래티지 패턴",
+    "subject": "sw설계원칙과디자인패턴",
+    "description": "로봇 예제, 전략 분리, OCP",
+    "questionCount": 8
+  },
+  {
     "slug": "history-0428-crisis-leadership",
     "title": "0428 조직 내 위기관리와 리더십",
     "subject": "역사 속 리더십의 빛과 그림자",

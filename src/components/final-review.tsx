@@ -19,7 +19,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import type { LectureSupplement, ReviewSubsection, SubjectFinalReview } from "@/lib/final-review/types";
+import type {
+  EssayExamGuide,
+  LectureSupplement,
+  ReviewSubsection,
+  SubjectFinalReview,
+} from "@/lib/final-review/types";
 
 type FinalReviewProps = SubjectFinalReview & {
   subjectTitle: string;
@@ -269,6 +274,66 @@ function ReviewSetSection({
   );
 }
 
+function EssayExamGuideSection({ guide }: { guide: EssayExamGuide }) {
+  return (
+    <section id="essay-exam-guide" className="scroll-mt-20" aria-labelledby="essay-exam-guide-heading">
+      <h2 id="essay-exam-guide-heading" className="mb-4 flex items-center gap-2 text-lg font-semibold">
+        <FileText className="size-5 text-primary" aria-hidden />
+        서술형 문제 유형 안내
+      </h2>
+      <p className="mb-4 text-sm text-muted-foreground">{guide.summary}</p>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {guide.types.map((t) => (
+          <Card key={t.id}>
+            <CardHeader className="border-b pb-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant={t.id === "list" ? "default" : "secondary"}>
+                  {t.label}
+                </Badge>
+                <span className="text-xs text-muted-foreground">{t.points}</span>
+              </div>
+              <CardDescription className="mt-2 text-sm text-foreground">
+                {t.description}
+              </CardDescription>
+            </CardHeader>
+            {t.tips && t.tips.length > 0 && (
+              <CardContent className="pt-3">
+                <ul className="list-inside list-disc space-y-1 text-xs text-muted-foreground">
+                  {t.tips.map((tip) => (
+                    <li key={tip}>{tip}</li>
+                  ))}
+                </ul>
+              </CardContent>
+            )}
+          </Card>
+        ))}
+      </div>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        {guide.likelyTopics.map((topic) => (
+          <Card
+            key={topic.label}
+            className={topic.priority === "high" ? "ring-2 ring-primary/20" : undefined}
+          >
+            <CardHeader className="pb-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <CardTitle className="text-base">{topic.label}</CardTitle>
+                {topic.priority === "high" && <Badge>출제 유력</Badge>}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
+                {topic.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function EssayMockSection({
   essayMocks,
 }: {
@@ -382,6 +447,7 @@ export function FinalReview({
   requirementLists,
   scenarios,
   essayMocks,
+  essayExamGuide,
   lectureSupplement,
 }: FinalReviewProps) {
   return (
@@ -426,6 +492,17 @@ export function FinalReview({
               </a>
             </li>
           )}
+          {essayExamGuide && (
+            <li className="sm:col-span-2">
+              <a
+                href="#essay-exam-guide"
+                className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm transition-colors hover:bg-primary/10"
+              >
+                <FileText className="size-4 shrink-0 text-primary" aria-hidden />
+                서술형 문제 유형 안내
+              </a>
+            </li>
+          )}
         </ol>
       </nav>
 
@@ -442,15 +519,13 @@ export function FinalReview({
         </>
       )}
 
-      {essayMocks && essayMocks.length > 0 && (
-        <EssayMockSection essayMocks={essayMocks} />
-      )}
+      {essayExamGuide && <EssayExamGuideSection guide={essayExamGuide} />}
 
       {requirementLists && requirementLists.length > 0 && (
         <section aria-labelledby="req-heading">
           <h2 id="req-heading" className="mb-4 flex items-center gap-2 text-lg font-semibold">
             <ListChecks className="size-5 text-primary" aria-hidden />
-            요건 나열형 암기 (중간고사 패턴)
+            요건 나열형 암기 (출제 유력)
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {requirementLists.map((list) => (
@@ -484,6 +559,10 @@ export function FinalReview({
             ))}
           </div>
         </section>
+      )}
+
+      {essayMocks && essayMocks.length > 0 && (
+        <EssayMockSection essayMocks={essayMocks} />
       )}
 
       {scenarios && scenarios.length > 0 && (

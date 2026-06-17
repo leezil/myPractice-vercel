@@ -1,7 +1,11 @@
 import type { SubjectFinalReview } from "./types";
 import { HISTORY_LEADERSHIP_FINAL_REVIEW } from "./history-leadership";
 import { MODERN_LAW_FINAL_REVIEW } from "./modern-law";
-import { MODERN_LAW_LECTURE_SUPPLEMENT } from "./modern-law-lecture";
+import {
+  MODERN_LAW_ESSAY_EXAM_GUIDE,
+  MODERN_LAW_LECTURE_SUPPLEMENT,
+  MODERN_LAW_REQUIREMENT_LISTS,
+} from "./modern-law-lecture";
 
 const REVIEW_BY_SUBJECT: Record<string, SubjectFinalReview> = {
   "history-leadership": {
@@ -14,6 +18,8 @@ const REVIEW_BY_SUBJECT: Record<string, SubjectFinalReview> = {
   },
   "modern-law": {
     ...MODERN_LAW_FINAL_REVIEW,
+    essayExamGuide: MODERN_LAW_ESSAY_EXAM_GUIDE,
+    requirementLists: MODERN_LAW_REQUIREMENT_LISTS,
     lectureSupplement: MODERN_LAW_LECTURE_SUPPLEMENT,
   },
 };

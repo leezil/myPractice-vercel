@@ -87,6 +87,7 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
   const q = questions[currentIndex];
   const outcome = q ? outcomes[q.id] : undefined;
   const verifiedCount = Object.keys(outcomes).length;
+  const isSingleChoiceSet = questions.every((item) => item.choices.length === 4);
 
   const score = useMemo(() => {
     let c = 0;
@@ -100,7 +101,13 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
     if (!q) return;
     const raw = selection[q.id];
     if (!raw || raw.length === 0) {
-      toast.warning("답을 하나 이상 선택해 주세요.");
+      toast.warning(
+        isSingleChoiceSet ? "답을 하나 선택해 주세요." : "답을 하나 이상 선택해 주세요.",
+      );
+      return;
+    }
+    if (isSingleChoiceSet && raw.length !== 1) {
+      toast.warning("4지선다는 하나만 선택할 수 있습니다.");
       return;
     }
     const displayIndices = raw.map(Number).filter((n) => !Number.isNaN(n));
@@ -379,7 +386,9 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-xs text-muted-foreground">
-            해당하는 보기를 모두 선택한 뒤 정답 확인을 누르세요.
+            {isSingleChoiceSet
+              ? "보기 중 하나를 선택한 뒤 정답 확인을 누르세요."
+              : "해당하는 보기를 모두 선택한 뒤 정답 확인을 누르세요."}
           </p>
           <div className="space-y-3">
             {shuffleMap[q.id].choices.map((c, displayIdx) => {
@@ -394,7 +403,9 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
               const checked =
                 o != null
                   ? o.picked.includes(origAtRow)
-                  : (selection[q.id] ?? []).includes(String(displayIdx));
+                  : isSingleChoiceSet
+                    ? (selection[q.id] ?? [])[0] === String(displayIdx)
+                    : (selection[q.id] ?? []).includes(String(displayIdx));
               return (
                 <div
                   key={id}
@@ -407,18 +418,22 @@ export function QuizRunner({ initialSet }: { initialSet: PublicProblemSet }) {
                   )}
                 >
                   <input
-                    type="checkbox"
+                    type={isSingleChoiceSet ? "radio" : "checkbox"}
                     id={id}
+                    name={isSingleChoiceSet ? q.id : undefined}
                     checked={checked}
                     disabled={Boolean(outcome)}
-                    onChange={(e) => {
+                    onChange={() => {
                       if (outcome) return;
                       const val = String(displayIdx);
                       setSelection((prev) => {
+                        if (isSingleChoiceSet) {
+                          return { ...prev, [q.id]: [val] };
+                        }
                         const cur = prev[q.id] ?? [];
-                        const next = e.target.checked
-                          ? [...cur, val]
-                          : cur.filter((x) => x !== val);
+                        const next = cur.includes(val)
+                          ? cur.filter((x) => x !== val)
+                          : [...cur, val];
                         return { ...prev, [q.id]: next };
                       });
                     }}

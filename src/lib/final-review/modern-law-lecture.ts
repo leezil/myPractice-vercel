@@ -1,4 +1,84 @@
-import type { LectureSupplement } from "./types";
+import type { EssayExamGuide, LectureSupplement, RequirementList } from "./types";
+
+/** 서술형 문제 유형·출제 유력 (수업·중간고사 패턴 기준) */
+export const MODERN_LAW_ESSAY_EXAM_GUIDE: EssayExamGuide = {
+  summary:
+    "기말고사는 서술형 2문항, 총 35점입니다. 중간고사와 같은 패턴으로 「사례 적용형 1문항 + 요건 나열형 1문항」이 출제됩니다. 긴 지문형 문제가 나올 수 있습니다.",
+  types: [
+    {
+      id: "scenario",
+      label: "사례 적용형",
+      points: "약 17~18점",
+      description:
+        "자료에 나온 사례를 읽고, 물권자·당사자가 어떤 권리(청구권 등)를 행사할 수 있는지 설명하는 유형",
+      tips: [
+        "중간고사 사례형과 동일한 형식",
+        "사실관계 → 법리(청구권·요건) → 결론 순으로 3~5문장",
+      ],
+    },
+    {
+      id: "list",
+      label: "요건 나열형",
+      points: "약 17~18점",
+      description:
+        "「~요건을 설명하시오」 형식. 자료에 나온 요건을 번호대로 기술",
+      tips: [
+        "중간고사 「이행지체 5요건」과 같은 나열형",
+        "번호만 정확히 써도 고득점 — 항목당 1문장이면 충분",
+      ],
+    },
+  ],
+  likelyTopics: [
+    {
+      type: "list",
+      label: "요건 나열형 — 출제 유력",
+      priority: "high",
+      items: [
+        "유익비로 인정되기 위한 요건 5가지 (최우선)",
+        "선의취득 요건 4가지 (동산·평온공연선의무과실·유효한 거래·인도)",
+      ],
+    },
+    {
+      type: "scenario",
+      label: "사례 적용형 — 자료 예시 중심",
+      priority: "medium",
+      items: [
+        "물권적 청구권 (무단 건축, 돌담, 길동이 점유 등)",
+        "선의취득 (착오 취소 후 양수, 카메라 양도)",
+        "비용상환 (필요비·유익비·기계장치·식당 개조)",
+      ],
+    },
+  ],
+};
+
+/** 요건 나열형 암기용 (출제 유력) */
+export const MODERN_LAW_REQUIREMENT_LISTS: RequirementList[] = [
+  {
+    id: "beneficial-cost-5",
+    title: "유익비 인정 요건 (5가지)",
+    priority: "high",
+    items: [
+      "비용의 지출이 있을 것",
+      "비용 지출로 점유물 가치가 증대되었을 것",
+      "점유의 본래적 용도에 부합할 것",
+      "비용 결과가 점유물 구성부분이어야 함 (독립물이면 점유자 소유 → 유익비 아님)",
+      "가치의 증대가 현존할 것",
+    ],
+    note: "나열형 최우선 출제 유력. 회복자 선택(지출금액 vs 증가액)도 함께 암기.",
+  },
+  {
+    id: "good-faith-4",
+    title: "선의취득 요건 (4가지)",
+    priority: "high",
+    items: [
+      "동산일 것",
+      "평온·공연·선의·무과실로 양수할 것",
+      "거래행위가 유효할 것",
+      "점유의 이전(인도)이 있을 것",
+    ],
+    note: "중간고사 「이행지체 5요건」과 같은 나열형 패턴.",
+  },
+];
 
 /** 현대인의 생활법률 — 14주차 수업 녹음 보완 (자료 본문과 분리) */
 export const MODERN_LAW_LECTURE_SUPPLEMENT: LectureSupplement = {
@@ -175,9 +255,23 @@ export const MODERN_LAW_LECTURE_SUPPLEMENT: LectureSupplement = {
       title: "시험 안내 (수업)",
       subsections: [
         {
+          title: "서술형 문제 유형 (2가지)",
+          numberedItems: [
+            "사례 적용형 (약 17~18점) — 자료 사례를 읽고 권리·청구권 적용 설명. 중간고사 사례형과 동일",
+            "요건 나열형 (약 17~18점) — 「~요건을 설명하시오」. 중간고사 이행지체 5요건과 같은 패턴",
+          ],
+          note: "총 2문항 35점. 긴 지문이 나올 수 있음.",
+        },
+        {
+          title: "요건 나열형 — 출제 유력",
+          bullets: [
+            "유익비 인정 요건 5가지 (최우선)",
+            "선의취득 요건 4가지",
+          ],
+        },
+        {
           title: "출제·응시",
           bullets: [
-            "서술형 2문항, 총 35점(사례형 + 요건 나열형)",
             "시험 시간 70분",
             "문제는 14주차 강의자료 안에서만 출제",
             "점유권 전반은 범위 아님 — 제203조 비용상환만 해당",

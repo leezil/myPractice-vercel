@@ -77,6 +77,24 @@ export type EssayMockQuestion = {
   tip?: string;
 };
 
+/** 서술형 시험 유형·출제 유력 안내 */
+export type EssayExamGuide = {
+  summary: string;
+  types: {
+    id: string;
+    label: string;
+    points: string;
+    description: string;
+    tips?: string[];
+  }[];
+  likelyTopics: {
+    type: "list" | "scenario";
+    label: string;
+    items: string[];
+    priority?: "high" | "medium";
+  }[];
+};
+
 /** 수업 녹음·복습에서 다룬 보완 정리 (14주차 자료와 분리) */
 export type LectureSupplement = {
   intro: string;
@@ -93,5 +111,6 @@ export type SubjectFinalReview = {
   requirementLists?: RequirementList[];
   scenarios?: ReviewScenario[];
   essayMocks?: EssayMockQuestion[];
+  essayExamGuide?: EssayExamGuide;
   lectureSupplement?: LectureSupplement;
 };
