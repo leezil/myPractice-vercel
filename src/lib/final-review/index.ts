@@ -7,6 +7,7 @@ import {
   MODERN_LAW_REQUIREMENT_LISTS,
 } from "./modern-law-lecture";
 import { SW_DESIGN_PATTERNS_FINAL_REVIEW } from "./sw-design-patterns";
+import { EARTH_ENV_ECOLOGY_FINAL_REVIEW } from "./earth-env-ecology";
 
 const REVIEW_BY_SUBJECT: Record<string, SubjectFinalReview> = {
   "history-leadership": {
@@ -29,6 +30,14 @@ const REVIEW_BY_SUBJECT: Record<string, SubjectFinalReview> = {
     sets: SW_DESIGN_PATTERNS_FINAL_REVIEW.map((s) => ({
       ...s,
       quizSlug: s.slug,
+    })),
+  },
+  "earth-env-ecology": {
+    intro:
+      "9주차 강의(근대 인간중심→동물윤리→생명·대지·심층생태)를 키워드·인물·비교표 중심으로 정리했습니다.",
+    sets: EARTH_ENV_ECOLOGY_FINAL_REVIEW.map((s) => ({
+      ...s,
+      quizSlug: s.slug.startsWith("eco-week") ? s.slug : undefined,
     })),
   },
 };
