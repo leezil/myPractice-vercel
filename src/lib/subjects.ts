@@ -8,6 +8,7 @@ export const COURSE_SUBJECTS: CourseSubject[] = [
   { slug: "history-leadership", title: "역사 속 리더십의 빛과 그림자" },
   { slug: "modern-law", title: "현대인의 생활법률" },
   { slug: "sw-design-patterns", title: "sw설계원칙과디자인패턴" },
+  { slug: "earth-env-ecology", title: "지구환경과 생태" },
   { slug: "smart-iot", title: "스마트 IOT 관리" },
   { slug: "ai-basics", title: "인공지능 기초" },
   { slug: "ai-digital", title: "AI디지털전환" },

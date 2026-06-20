@@ -42,6 +42,69 @@
     "questionCount": 14
   },
   {
+    "slug": "eco-week03-modern",
+    "title": "3주차 — 근대의 인간중심주의",
+    "subject": "지구환경과 생태",
+    "description": "베이컨·칸트, 서양 인류사 흐름, 인간중심주의",
+    "questionCount": 12
+  },
+  {
+    "slug": "eco-week04-env-eco",
+    "title": "4주차 — 현대의 인간중심주의",
+    "subject": "지구환경과 생태",
+    "description": "생태 파괴, 내재적 가치, 린 화이트, 환경철학",
+    "questionCount": 12
+  },
+  {
+    "slug": "eco-week05-singer",
+    "title": "5주차 — 피터 싱어와 종차별주의",
+    "subject": "지구환경과 생태",
+    "description": "선호공리주의, Sentience, 동물복지론",
+    "questionCount": 14
+  },
+  {
+    "slug": "eco-week06-regan",
+    "title": "6주차 — 톰 레건의 동물권리론",
+    "subject": "지구환경과 생태",
+    "description": "삶의 주체, 내재적 가치, 권리 충돌",
+    "questionCount": 12
+  },
+  {
+    "slug": "eco-week07-speciesism",
+    "title": "7주차 — 종차별주의 옹호논변",
+    "subject": "지구환경과 생태",
+    "description": "코헨·프레이·카루더스·케이건",
+    "questionCount": 14
+  },
+  {
+    "slug": "eco-week09-schweitzer",
+    "title": "9주차 — 슈바이처의 생명외경",
+    "subject": "지구환경과 생태",
+    "description": "Ehrfurcht, 생명의 의지, 세 가지 원칙",
+    "questionCount": 12
+  },
+  {
+    "slug": "eco-week12-taylor",
+    "title": "12주차 — 테일러의 생명중심주의",
+    "subject": "지구환경과 생태",
+    "description": "자연 존중, 내재적·본래적 가치, 우선순위 규칙",
+    "questionCount": 10
+  },
+  {
+    "slug": "eco-week13-leopold",
+    "title": "13주차 — 레오폴드의 대지윤리",
+    "subject": "지구환경과 생태",
+    "description": "Land Ethic, 생태중심, 대지 피라미드",
+    "questionCount": 10
+  },
+  {
+    "slug": "eco-week14-naess",
+    "title": "14주차 — 아르네 네스의 심층생태학",
+    "subject": "지구환경과 생태",
+    "description": "Deep Ecology, 8원칙, Self/self",
+    "questionCount": 12
+  },
+  {
     "slug": "history-0428-crisis-leadership",
     "title": "0428 조직 내 위기관리와 리더십",
     "subject": "역사 속 리더십의 빛과 그림자",

@@ -98,7 +98,10 @@ export function SetList({ subjectSlug, subjectTitle }: SetListProps) {
           </ul>
           <p className="mt-4">
             R2에는 <code className="rounded bg-muted px-1 py-0.5 text-xs">content/r2-seed/</code> 와
-            같은 구조로 업로드하면 됩니다.
+            같은 구조로 업로드하면 됩니다. 로컬에서{" "}
+            <code className="rounded bg-muted px-1 py-0.5 text-xs">.env.local</code>에 위 변수를
+            넣은 뒤 <code className="rounded bg-muted px-1 py-0.5 text-xs">npm run upload:r2</code>
+            를 실행하세요.
           </p>
         </CardContent>
       </Card>
@@ -112,7 +115,7 @@ export function SetList({ subjectSlug, subjectTitle }: SetListProps) {
           <CardTitle>등록된 문제 세트가 없습니다</CardTitle>
           <CardDescription>
             {subjectTitle
-              ? `「${subjectTitle}」 과목으로 등록된 세트가 없습니다. R2에 index.json·sets/가 버킷 루트 또는 content/r2-seed/ 아래에 있는지, index의 subject·slug가 맞는지 확인하세요.`
+              ? `「${subjectTitle}」 과목으로 등록된 세트가 없습니다. R2에 index.json·sets/를 업로드했는지, Vercel 환경 변수 4개가 설정됐는지 확인하세요. 로컬에서 npm run upload:r2 로 올릴 수 있습니다.`
               : data.r2Configured
                 ? "R2 버킷에 index.json과 sets/*.json을 업로드한 뒤 다시 확인하세요."
                 : "content/r2-seed/index.json을 추가하거나 R2를 연결하세요."}
